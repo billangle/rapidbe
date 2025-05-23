@@ -8,7 +8,7 @@
     "apiUrl": "https://oktaqa.reirapid.net",
     "OktaAdmin": {
       "username": "new.usertest@reirapid.net",
-      "password": "Passw0rd123qwery",
+      "password": "",
       "system": "reisystems-trial-2921931"
     }
   },
