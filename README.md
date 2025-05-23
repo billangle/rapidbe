@@ -1,11 +1,6 @@
-<img width="100%" valign="bottom" src="https://github.com/REI-Systems/REISystems-OGST-USCIS-RAPID-Coding-Challenge-Document-Library/blob/main/assets/bannerUserManagement.png"/>
-<br>
 
 The User Management service, will manage users in **AWS Cognito User Pool**. The ci-cd/cdk directory contains the CDK code to create the AWS infrastructure required for this service. The CDK is also utilized to deploy all **Lambda** functions and REST endpoints into the **API Gateway**. 
 
-The Lambda functions are defined in the rest directory. These functions are specific to a REST endpoint. Shared code is found in the <a href="https://github.com/REI-Systems/REISystems-OGST-USCIS-RAPID-Coding-Challenge-User-Management/blob/main/customlayer/nodejs/Utils.mjs">customlayer/nodejs/Utils.mjs</a> file. The CDK will automatically deploy changes to the layers and the Lambda functions. A second layer called layer/nodejs contains third-party packages that can be called by the Lambda. This has a <a href="https://github.com/REI-Systems/REISystems-OGST-USCIS-RAPID-Coding-Challenge-User-Management/blob/main/package.json">package.json</a> file, defining these packages. For local CDK installs - the developer must run ```npm install``` in this directory.
-
-<br>
 
 -----
 
@@ -13,22 +8,7 @@ The Lambda functions are defined in the rest directory. These functions are spec
 
 There are are GitHub workflows to create and deploy all AWS resources as well as code required for this feature. These are:
 
-- Deploy DEV RAPID CC User Management
-- Deploy STAGE RAPID CC User Management
-- Deploy PRODUCTION RAPID CC User Management
-- Deploy DEV Swagger RAPID CC
-- Deploy STG Swagger RAPID CC
 
-Currently, all of the workflows need to be run manually via the GitHub/Actions option.
-
-The RAPID CC User Management pipeline will create and deploy the serverless resources to support the User Management REST API, the result will be an API gateway with the DNS name: rapidum.`<environment>`.reirapid.net. The production API Gateway is rapidum.reirapid.net.
-
-The Swagger workflows for DEVELOPMENT and STAGING will create an AWS ECS cluster, provising access to the swagger via AWS ALB. The cluster utilizes an AWS Fargate task for provide access to the Java based container. The URLa are:
-
-- DEV: https://umdocs.dev.reirapid.net/swagger-ui/index.html
-- STAGING: https://umdocs.stg.reirapid.net/swagger-ui/index.html
-
-Not deploying the swagger service on production.
 
 <br>
 
@@ -42,10 +22,7 @@ The deployment for the swagger documentation is found in /ci-cd/ecsalb. This CDK
 
 ## Getting Started with CDK
 
-The CDK has three basic elements. There is an Application, this is defined in <a href="https://github.com/REI-Systems/REISystems-OGST-USCIS-RAPID-Coding-Challenge-User-Management/blob/main/ci-cd/cdk/bin/user-mgt-sl-be.ts">ci-cd/cdk/bin/user-mgt-sl-be.ts</a>. There is a stack, this is defined in <a href="https://github.com/REI-Systems/REISystems-OGST-USCIS-RAPID-Coding-Challenge-User-Management/blob/main/ci-cd/cdk/lib/user-mgt-slbe-stack.ts">ci-cd/cdk/lib/user-mgmt-slbe-stack.ts</a>. Finally, there are constructs, these are used by the stack to build and deploy the application. The stacks are defined in ci-cd/cdk/lib/constructs.
 
-This application is designed for developers to add/change functionality using a single construct. This construct defines the API Gateway and all REST end points.
-The REST API end points are defined in the <a href="https://github.com/REI-Systems/REISystems-OGST-USCIS-RAPID-Coding-Challenge-User-Management/blob/main/ci-cd/cdk/lib/constructs/ApiGateway/index.ts">ci-cd/cdk/lib/constructs/ApiGateway/index.ts</a> file. When adding or changing REST end points the developer should make changes to the API Gateway construct.
 
 Helpful documentation:
 - AWS CDK Documentation: https://docs.aws.amazon.com/cdk/api/v2/ $\textcolor{silver}{↗}$
@@ -65,7 +42,7 @@ Once keys are provided the developer can use the CDK to deploy changes. This is 
 - AWS CDK: ```npm install -g aws-cdk```
 - Navigate to ci-cd/cdk and run ```npm install``` - this installs the packages required by the CDK
 
-The specifics for an environment is defined in a directory under the ci-cd directory. Using development as the target, this environment is defined in the directory ci-cd/dev. The file <a href="https://github.com/REI-Systems/REISystems-OGST-USCIS-RAPID-Coding-Challenge-User-Management/blob/main/ci-cd/dev/cdk-spec.json">cdk-spec.json</a> contains all of the information about the environment. It is utilized by the CDK in the application startup. As a developer the deployment environment is defined by setting the variable:
+The specifics for an environment is defined in a directory under the ci-cd directory. Using development as the target, this environment is defined in the directory ci-cd/dev. The file cdk-spec.json contains all of the information about the environment. It is utilized by the CDK in the application startup. As a developer the deployment environment is defined by setting the variable:
 
 - ```DEPLOY_ENV=dev```
 
