@@ -1,0 +1,20 @@
+{"data" :{
+    "username": "rapid.test",
+    "password": "Passw0rd123qwery!",
+    "email": "william.beckett+rapidtest@reisystems.com",
+    "firstName": "Rapid",
+    "lastName": "Test",
+    "street1": "1234 Main St",
+    "city": "Fairfax",
+    "state": "VA",
+    "zip": "22033",
+    "phone": "123-456-7890",
+    "confirmEmail": "william.beckett+rapidtest@reisystems.com",
+    "apt": "111D",
+    "middlename": "Middle",
+    "prefix": "Mr.",
+    "suffix": "Jr.",
+    "challengeQuestion": "What is your favorite color?",
+    "challengeAnswer": "Blue",
+    "role": "Admins"
+}}

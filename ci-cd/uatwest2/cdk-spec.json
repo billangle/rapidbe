@@ -1,0 +1,22 @@
+{
+    "settings":{
+        "topdir": "infrastructure",
+        "environment": "uatwest2",
+        "region": "us-west-2",
+        "account": "839407828943",
+        "node_version": "NODEJS_16_X",
+        "role": "arn:aws:iam::839407828943:role/LambdaS3",
+        "domain": "prosamsusermgt.net",
+        "api_name": "RAPID CC",
+        "api_dns":  "api",
+        "description": "RAPID CC API",
+        "cert_arn": "arn:aws:acm:us-east-1:839407828943:certificate/5fabddf3-69ae-450b-945d-170544bd0610",
+        "rest_api_id": "7pjrtr485e",
+        "root_resource_id": "otyny06ggk",
+        "user_pool_arn_r1": "arn:aws:cognito-idp:us-west-2:839407828943:userpool/us-west-2_7IePAuMn2",
+        "user_pool_arn_r2": "arn:aws:cognito-idp:us-west-2:839407828943:userpool/us-west-2_7IePAuMn2",
+        "user_pool_arn":  "arn:aws:cognito-idp:us-west-2:839407828943:userpool/us-west-2_7IePAuMn2",
+        "prosams_proposal_data_arn": "arn:aws:s3:::prosams-proposal-data-uat"
+
+    }
+}

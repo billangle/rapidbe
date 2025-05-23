@@ -1,0 +1,21 @@
+{
+  "environments": {
+    "local": {
+      "rccUrl": "http://localhost:8080/"
+    },
+  "okta": {
+    "rccUrl": "https://trial-2921931.okta.com/",
+    "apiUrl": "https://oktaqa.reirapid.net",
+    "OktaAdmin": {
+      "username": "new.usertest@reirapid.net",
+      "password": "Passw0rd123qwery",
+      "system": "reisystems-trial-2921931"
+    }
+  },
+  "nonOktaUser": {
+    "username": "test",
+    "password": "test",
+    "name": "No User"
+  }
+}
+}

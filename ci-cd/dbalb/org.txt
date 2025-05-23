@@ -1,0 +1,118 @@
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as ecs from 'aws-cdk-lib/aws-ecs';
+import * as iam from 'aws-cdk-lib/aws-iam';
+import * as logs from 'aws-cdk-lib/aws-logs';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as elb from 'aws-cdk-lib/aws-elasticloadbalancingv2';
+import { StackProps} from 'aws-cdk-lib';
+import { ConfigurationData } from '../@types';
+// import * as sqs from 'aws-cdk-lib/aws-sqs';
+
+interface ContractsStackProps extends StackProps {
+  configData: ConfigurationData
+}
+
+
+export class EcsalbStack extends cdk.Stack {
+
+    constructor(scope: Construct, id: string, props: ContractsStackProps) {
+      super(scope, id, props);
+  
+      
+      // Create a VPC
+      const vpc = new ec2.Vpc(this, 'EcsVpc', {
+        maxAzs: 3, // Use 3 AZs for high availability
+      });
+  
+      // Create an ECS Cluster
+      const cluster = new ecs.Cluster(this, 'EcsCluster', {
+        vpc,
+      });
+  
+      // Create an IAM role for ECS task execution
+      const taskExecutionRole = new iam.Role(this, 'EcsTaskExecutionRole', {
+        assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com'),
+        managedPolicies: [
+          iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonEC2ContainerRegistryReadOnly'),
+          iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchLogsFullAccess'),
+        ],
+      });
+  
+      // Create an ECS Task Definition
+      const taskDefinition = new ecs.FargateTaskDefinition(this, 'JavaAppTaskDefinition', {
+        executionRole: taskExecutionRole,
+        memoryLimitMiB: 1024,
+        cpu: 512,
+      });
+  
+      // Use an image for the Java container
+      const javaImage = ecs.ContainerImage.fromRegistry('openjdk:11-jre-slim'); // Use your Docker image here
+  
+      // Add a container to the task definition
+      taskDefinition.addContainer('JavaContainer', {
+        image: javaImage,
+        logging: ecs.LogDrivers.awsLogs({
+          streamPrefix: 'java-app',
+          logGroup: new logs.LogGroup(this, 'JavaAppLogGroup'),
+        }),
+        environment: {
+          'JAVA_APP_ENV': 'production', // Example environment variable
+        },
+        portMappings: [
+          {
+            containerPort: 8085, // Expose port 8085 inside the container
+            hostPort: 8085, // Expose port 8085 to the host (Fargate will automatically bind it)
+          },
+        ],
+      });
+  
+      // Create an Application Load Balancer (ALB)
+      const loadBalancer = new elb.ApplicationLoadBalancer(this, 'JavaAppLoadBalancer', {
+        vpc,
+        internetFacing: true, // Public-facing ALB
+      });
+  
+      // Create an ALB listener on port 80
+      const listener = loadBalancer.addListener('Listener', {
+        port: 80,
+      });
+  
+      // Create a target group for ECS
+      const ecsTargetGroup = listener.addTargets('EcsTargetGroup', {
+        port: 80,
+        targets: [],
+      });
+  
+      // Create an ECS service
+      const service = new ecs.FargateService(this, 'JavaAppService', {
+        cluster,
+        taskDefinition,
+        desiredCount: 2,
+      });
+  
+      // Register the ECS service with the ALB target group
+      ecsTargetGroup.addTarget(service);
+  /*
+      // Create an API Gateway
+      const api = new apigateway.RestApi(this, 'ApiGateway', {
+        restApiName: 'EcsApi',
+        description: 'API Gateway connected to ECS through ALB',
+      });
+  
+      // Create a resource for the API Gateway
+      const javaApiResource = api.root.addResource('java-app');
+  
+      // Add a proxy integration to the ALB using an HTTP proxy
+      javaApiResource.addMethod('GET', new apigateway.HttpIntegration(`http://${loadBalancer.loadBalancerDnsName}/`));
+  
+      // Output the URL of the API Gateway
+      new cdk.CfnOutput(this, 'ApiGatewayUrl', {
+        value: api.url!,
+        description: 'URL for the API Gateway',
+      });
+    }
+      */
+    }
+}

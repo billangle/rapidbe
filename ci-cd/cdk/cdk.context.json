@@ -1,0 +1,30 @@
+{
+  "hosted-zone:account=692859936875:domainName=rapidedgecc.net:region=us-east-2": {
+    "Id": "/hostedzone/Z05165103PCDPADQEHJO4",
+    "Name": "rapidedgecc.net."
+  },
+  "hosted-zone:account=209479266802:domainName=dev.rapidedgecc.net:region=us-east-2": {
+    "Id": "/hostedzone/Z0611539QP3WFP2VBPJ5",
+    "Name": "dev.rapidedgecc.net."
+  },
+  "hosted-zone:account=796973487247:domainName=stg.rapidedgecc.net:region=us-east-2": {
+    "Id": "/hostedzone/Z0799451PROIG2GLGDOQ",
+    "Name": "stg.rapidedgecc.net."
+  },
+  "hosted-zone:account=692859936875:domainName=app.reirapid.com:region=us-east-2": {
+    "Id": "/hostedzone/Z07824281KR4I2P62PVT1",
+    "Name": "app.reirapid.com."
+  },
+  "hosted-zone:account=692859936875:domainName=reirapid.net:region=us-east-2": {
+    "Id": "/hostedzone/Z00745473CY5YP0LHGKB2",
+    "Name": "reirapid.net."
+  },
+  "hosted-zone:account=796973487247:domainName=stg.reirapid.net:region=us-east-2": {
+    "Id": "/hostedzone/Z035981930R0L34N05HCD",
+    "Name": "stg.reirapid.net."
+  },
+  "hosted-zone:account=209479266802:domainName=dev.reirapid.net:region=us-east-2": {
+    "Id": "/hostedzone/Z0525135156DJTHQX8QCY",
+    "Name": "dev.reirapid.net."
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "nodemailer": "^6.9.13",
+    "uuid": "^9.0.1",
+    "handlebars": "^4.7.8",
+     "axios": "^1.7.4"
+  }
+}

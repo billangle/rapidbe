@@ -1,0 +1,31 @@
+spring:
+  datasource.url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/thrive
+  datasource.username: ${DB_USER}
+  datasource.password: ${RDS_PASS}
+  datasource.continue-on-error: true
+  profiles:
+    active: prod
+
+---
+
+spring:
+  profiles: prod
+server:
+  port: 80
+  additionalPorts: 8080
+
+
+
+
+---
+
+spring:
+  profiles: local
+server:
+  port: 80
+  additionalPorts: 8080
+
+
+springdoc:
+  swagger-ui:
+    filter: true

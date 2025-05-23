@@ -1,0 +1,46 @@
+{
+
+    "default": {
+        "parallel": 2,
+        "defaultTimeout": 10000,
+
+        "paths": [
+
+            "tests/features/"
+
+        ],
+
+        "require": [
+
+            "tests/steps/*.js",
+            "hooks.js"
+
+        ],
+
+        "formatOptions": {
+
+            "snippetInterface": "async-await"
+
+        },
+
+        "format": [
+
+            [
+
+                "html",
+
+                "./results/cucumber-report.html"
+
+            ],
+
+            "summary",
+
+            "progress-bar",
+
+            "json:./results/cucumber-report.json"
+
+        ]
+
+    }
+
+}

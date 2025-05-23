@@ -1,0 +1,1418 @@
+Generating CERT for reports.prosams.nasa.gov
+Resources:
+  reportsSiteCertificatereportsprosamsnasagovC5DDD1EE:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: reports.prosams.nasa.gov
+      DomainValidationOptions:
+        - DomainName: reports.prosams.nasa.gov
+          HostedZoneId: Z07873392ALWO47Z0X3A8
+      Tags:
+        - Key: Name
+          Value: ProsamsReportsApiGatewayStack/reports/SiteCertificatereports.prosams.nasa.gov
+      ValidationMethod: DNS
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/reports/SiteCertificatereports.prosams.nasa.gov/Resource
+  APIReportEvents7E9C9ABC:
+    Type: AWS::DynamoDB::GlobalTable
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: UUID
+          AttributeType: S
+        - AttributeName: ReportType
+          AttributeType: S
+      BillingMode: PROVISIONED
+      KeySchema:
+        - AttributeName: UUID
+          KeyType: HASH
+        - AttributeName: ReportType
+          KeyType: RANGE
+      Replicas:
+        - DeletionProtectionEnabled: false
+          PointInTimeRecoverySpecification:
+            PointInTimeRecoveryEnabled: true
+          ReadProvisionedThroughputSettings:
+            ReadCapacityAutoScalingSettings:
+              MaxCapacity: 15
+              MinCapacity: 1
+              TargetTrackingScalingPolicyConfiguration:
+                TargetValue: 70
+          Region: us-west-1
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+      TableName: APIReportEvents
+      WriteProvisionedThroughputSettings:
+        WriteCapacityAutoScalingSettings:
+          MaxCapacity: 15
+          MinCapacity: 1
+          TargetTrackingScalingPolicyConfiguration:
+            TargetValue: 70
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/APIReportEvents/APIReportEvents/Resource
+  dynaEventprodRolePolicyProsamsReportsApiGatewayStackdynaEventprodRole863C0BB1244F047D:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - dynamodb:DescribeStream
+              - dynamodb:GetRecords
+              - dynamodb:GetShardIterator
+              - dynamodb:ListStreams
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - APIReportEvents7E9C9ABC
+                - StreamArn
+        Version: "2012-10-17"
+      PolicyName: PolicyProsamsReportsApiGatewayStackdynaEventprodRole863C0BB1
+      Roles:
+        - LambdaS3
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/dynaEventprod/Role/PolicyProsamsReportsApiGatewayStackdynaEventprodRole863C0BB1/Resource
+  dynaEventprodB515F5C9:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-962183462142-us-west-1
+        S3Key: 2f9031028ee5944020cd841cbf291c7a59147da640383532f72daa0d0013da19.zip
+      FunctionName: dynaEventprod
+      Handler: index.handler
+      MemorySize: 2048
+      Role: arn:aws:iam::962183462142:role/LambdaS3
+      Runtime: nodejs18.x
+      Timeout: 3
+    DependsOn:
+      - dynaEventprodRolePolicyProsamsReportsApiGatewayStackdynaEventprodRole863C0BB1244F047D
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/dynaEventprod/dynaEventprod/Resource
+      aws:asset:path: asset.2f9031028ee5944020cd841cbf291c7a59147da640383532f72daa0d0013da19
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  dynaEventprodDynamoDBEventSourceProsamsReportsApiGatewayStackAPIReportEventsD41642EACF34D8C5:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 100
+      EventSourceArn:
+        Fn::GetAtt:
+          - APIReportEvents7E9C9ABC
+          - StreamArn
+      FunctionName:
+        Ref: dynaEventprodB515F5C9
+      StartingPosition: LATEST
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/dynaEventprod/dynaEventprod/DynamoDBEventSource:ProsamsReportsApiGatewayStackAPIReportEventsD41642EA/Resource
+  sendEmailWithReportAttachmentRolePolicyProsamsReportsApiGatewayStacksendEmailWithReportAttachmentRoleD96EE72F3E587B74:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:ReceiveMessage
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - ReportAPIQEMail5705F328
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: PolicyProsamsReportsApiGatewayStacksendEmailWithReportAttachmentRoleD96EE72F
+      Roles:
+        - LambdaS3
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/sendEmailWithReportAttachment/Role/PolicyProsamsReportsApiGatewayStacksendEmailWithReportAttachmentRoleD96EE72F/Resource
+  sendEmailWithReportAttachment7A1EE67A:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-962183462142-us-west-1
+        S3Key: 1eabcc518fcfcde73668a48698383dc91c31aa5161632f0dfd60eeef8da12db9.zip
+      FunctionName: sendEmailWithReportAttachment
+      Handler: index.handler
+      MemorySize: 2048
+      Role: arn:aws:iam::962183462142:role/LambdaS3
+      Runtime: nodejs18.x
+      Timeout: 3
+    DependsOn:
+      - sendEmailWithReportAttachmentRolePolicyProsamsReportsApiGatewayStacksendEmailWithReportAttachmentRoleD96EE72F3E587B74
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/sendEmailWithReportAttachment/sendEmailWithReportAttachment/Resource
+      aws:asset:path: asset.1eabcc518fcfcde73668a48698383dc91c31aa5161632f0dfd60eeef8da12db9
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  ReportAPIQEMail5705F328:
+    Type: AWS::SQS::Queue
+    Properties:
+      ContentBasedDeduplication: true
+      DelaySeconds: 0
+      FifoQueue: true
+      QueueName: ReportAPIQEMail.fifo
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ReportAPIQEMail/Resource
+  ReportEventSrc9F6344D0:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn:
+        Fn::GetAtt:
+          - ReportAPIQEMail5705F328
+          - Arn
+      FunctionName:
+        Ref: sendEmailWithReportAttachment7A1EE67A
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ReportEventSrc/Resource
+  ReportAPIQEMailSSME26F73A1:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: ReportAPIQEMailSSM
+      Type: String
+      Value:
+        Ref: ReportAPIQEMail5705F328
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ReportAPIQEMailSSM/Resource
+  ProSAMSCDKAuthReportsAPIAF9E4408:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      IdentitySource: method.request.header.Authorization
+      Name: ProSAMS-CDK-Auth-ReportsAPI
+      ProviderARNs:
+        - arn:aws:cognito-idp:us-west-1:962183462142:userpool/us-west-1_Ww5ZYhCFj
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+      Type: COGNITO_USER_POOLS
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProSAMS-CDK-Auth-ReportsAPI/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapi732F9676:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Description: Prosams Reports API
+      Name: Prosams Reports API
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapiDeployment3CD4D360701fd122d18de071ee3be3e00d105fb8:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      Description: Prosams Reports API
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    DependsOn:
+      - ProSAMSCDKAuthReportsAPIAF9E4408
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordGETD67D451E
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordOPTIONS157F1E0D
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordC733DD56
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernameAEA15DC3
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthinternallogin348D71BA
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthinternal1C536EFC
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthB3AF7FA6
+      - ProsamsReportsAPIapiexternalgatewayprodapihealthcheckGET0BEA292D
+      - ProsamsReportsAPIapiexternalgatewayprodapihealthcheckOPTIONS5258F6AC
+      - ProsamsReportsAPIapiexternalgatewayprodapihealthcheckE2BB9E40
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemailGET298B6AF9
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemailOPTIONSEA50197C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemail09D980D4
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeE7C9EC6D
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSMOPTIONS501F3A6E
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSMPOSTC41B5C3A
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSM86E825D9
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReportOPTIONS064DA38C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReportPOST4577BE7C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReport210E7343
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequest40570059
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportOPTIONSB26339A9
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportPOST17EF8273
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReport2BFD24AC
+      - ProsamsReportsAPIapiexternalgatewayprodapireportB0B6B446
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Deployment/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapiDeploymentStageprod6032CFC9:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      DeploymentId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapiDeployment3CD4D360701fd122d18de071ee3be3e00d105fb8
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+      StageName: prod
+      Variables:
+        proenvironment: prod
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/DeploymentStage.prod/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapiCustomDomainF22F4F29:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      DomainName: reports.prosams.nasa.gov
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      RegionalCertificateArn:
+        Ref: reportsSiteCertificatereportsprosamsnasagovC5DDD1EE
+      SecurityPolicy: TLS_1_2
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/CustomDomain/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapiCustomDomainMapProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DFCA5EFF3D:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapiCustomDomainF22F4F29
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+      Stage:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapiDeploymentStageprod6032CFC9
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/CustomDomain/Map:--=>ProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DF/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapihealthcheckE2BB9E40:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+          - RootResourceId
+      PathPart: healthcheck
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/healthcheck/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapihealthcheckGETApiPermissionProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DFGEThealthcheckAEC4B5F1:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - ProsamsReportsAPIgetreportshealthcheckgetReportHealthCheck4C93C074
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:execute-api:us-west-1:962183462142:"
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+            - /
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapiDeploymentStageprod6032CFC9
+            - /GET/healthcheck
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/healthcheck/GET/ApiPermission.ProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DF.GET..healthcheck
+  ProsamsReportsAPIapiexternalgatewayprodapihealthcheckGETApiPermissionTestProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DFGEThealthcheckF3E6DE62:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - ProsamsReportsAPIgetreportshealthcheckgetReportHealthCheck4C93C074
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:execute-api:us-west-1:962183462142:"
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+            - /test-invoke-stage/GET/healthcheck
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/healthcheck/GET/ApiPermission.Test.ProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DF.GET..healthcheck
+  ProsamsReportsAPIapiexternalgatewayprodapihealthcheckGET0BEA292D:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - arn:aws:apigateway:us-west-1:lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - ProsamsReportsAPIgetreportshealthcheckgetReportHealthCheck4C93C074
+                  - Arn
+              - /invocations
+      ResourceId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapihealthcheckE2BB9E40
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/healthcheck/GET/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapihealthcheckOPTIONS5258F6AC:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'*'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'*'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+          StatusCode: "204"
+      ResourceId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapihealthcheckE2BB9E40
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/healthcheck/OPTIONS/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapiauthB3AF7FA6:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+          - RootResourceId
+      PathPart: auth
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/auth/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapiauthinternal1C536EFC:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapiauthB3AF7FA6
+      PathPart: internal
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/auth/internal/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapiauthinternallogin348D71BA:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapiauthinternal1C536EFC
+      PathPart: login
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/auth/internal/login/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernameAEA15DC3:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapiauthinternallogin348D71BA
+      PathPart: "{username}"
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/auth/internal/login/{username}/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordC733DD56:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernameAEA15DC3
+      PathPart: "{password}"
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/auth/internal/login/{username}/{password}/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordGETApiPermissionProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DFGETauthinternalloginusernamepassword69CF2441:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - ProsamsReportsAPIgetInternalLoginFF2DBB90
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:execute-api:us-west-1:962183462142:"
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+            - /
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapiDeploymentStageprod6032CFC9
+            - /GET/auth/internal/login/*/*
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/auth/internal/login/{username}/{password}/GET/ApiPermission.ProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DF.GET..auth.internal.login.{username}.{password}
+  ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordGETApiPermissionTestProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DFGETauthinternalloginusernamepassword30EB4B2D:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - ProsamsReportsAPIgetInternalLoginFF2DBB90
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:execute-api:us-west-1:962183462142:"
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+            - /test-invoke-stage/GET/auth/internal/login/*/*
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/auth/internal/login/{username}/{password}/GET/ApiPermission.Test.ProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DF.GET..auth.internal.login.{username}.{password}
+  ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordGETD67D451E:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - arn:aws:apigateway:us-west-1:lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - ProsamsReportsAPIgetInternalLoginFF2DBB90
+                  - Arn
+              - /invocations
+      ResourceId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordC733DD56
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/auth/internal/login/{username}/{password}/GET/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordOPTIONS157F1E0D:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'*'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'*'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+          StatusCode: "204"
+      ResourceId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordC733DD56
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/auth/internal/login/{username}/{password}/OPTIONS/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportB0B6B446:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+          - RootResourceId
+      PathPart: report
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequest40570059:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapireportB0B6B446
+      PathPart: request
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeE7C9EC6D:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapireportrequest40570059
+      PathPart: "{type}"
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/{type}/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemail09D980D4:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeE7C9EC6D
+      PathPart: "{email}"
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/{type}/{email}/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemailGETApiPermissionProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DFGETreportrequesttypeemail6B87181A:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - ProsamsReportsAPIputReportRequest0FF795CC
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:execute-api:us-west-1:962183462142:"
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+            - /
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapiDeploymentStageprod6032CFC9
+            - /GET/report/request/*/*
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/{type}/{email}/GET/ApiPermission.ProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DF.GET..report.request.{type}.{email}
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemailGETApiPermissionTestProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DFGETreportrequesttypeemail8B595100:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - ProsamsReportsAPIputReportRequest0FF795CC
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:execute-api:us-west-1:962183462142:"
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+            - /test-invoke-stage/GET/report/request/*/*
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/{type}/{email}/GET/ApiPermission.Test.ProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DF.GET..report.request.{type}.{email}
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemailGET298B6AF9:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: GET
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - arn:aws:apigateway:us-west-1:lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - ProsamsReportsAPIputReportRequest0FF795CC
+                  - Arn
+              - /invocations
+      ResourceId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemail09D980D4
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/{type}/{email}/GET/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemailOPTIONSEA50197C:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'*'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'*'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+          StatusCode: "204"
+      ResourceId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemail09D980D4
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/{type}/{email}/OPTIONS/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSM86E825D9:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapireportrequest40570059
+      PathPart: ApiReportTestOutputSSM
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/ApiReportTestOutputSSM/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSMPOSTApiPermissionProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DFPOSTreportrequestApiReportTestOutputSSM6953C8B3:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - ApiReportTestOutputSSMApiReportTestOutputSSMRestAPI39007BD2
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:execute-api:us-west-1:962183462142:"
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+            - /
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapiDeploymentStageprod6032CFC9
+            - /POST/report/request/ApiReportTestOutputSSM
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/ApiReportTestOutputSSM/POST/ApiPermission.ProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DF.POST..report.request.ApiReportTestOutputSSM
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSMPOSTApiPermissionTestProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DFPOSTreportrequestApiReportTestOutputSSM02317D0B:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - ApiReportTestOutputSSMApiReportTestOutputSSMRestAPI39007BD2
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:execute-api:us-west-1:962183462142:"
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+            - /test-invoke-stage/POST/report/request/ApiReportTestOutputSSM
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/ApiReportTestOutputSSM/POST/ApiPermission.Test.ProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DF.POST..report.request.ApiReportTestOutputSSM
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSMPOSTC41B5C3A:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Ref: ProSAMSCDKAuthReportsAPIAF9E4408
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - arn:aws:apigateway:us-west-1:lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - ApiReportTestOutputSSMApiReportTestOutputSSMRestAPI39007BD2
+                  - Arn
+              - /invocations
+      ResourceId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSM86E825D9
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/ApiReportTestOutputSSM/POST/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSMOPTIONS501F3A6E:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'*'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'*'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+          StatusCode: "204"
+      ResourceId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSM86E825D9
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/ApiReportTestOutputSSM/OPTIONS/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReport210E7343:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapireportrequest40570059
+      PathPart: EvalDataReport
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/EvalDataReport/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReportPOSTApiPermissionProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DFPOSTreportrequestEvalDataReport83A9B78D:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - ReviewerReportEvalDataReportRestAPIFDACC9FE
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:execute-api:us-west-1:962183462142:"
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+            - /
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapiDeploymentStageprod6032CFC9
+            - /POST/report/request/EvalDataReport
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/EvalDataReport/POST/ApiPermission.ProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DF.POST..report.request.EvalDataReport
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReportPOSTApiPermissionTestProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DFPOSTreportrequestEvalDataReport3EE2EA74:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - ReviewerReportEvalDataReportRestAPIFDACC9FE
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:execute-api:us-west-1:962183462142:"
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+            - /test-invoke-stage/POST/report/request/EvalDataReport
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/EvalDataReport/POST/ApiPermission.Test.ProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DF.POST..report.request.EvalDataReport
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReportPOST4577BE7C:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Ref: ProSAMSCDKAuthReportsAPIAF9E4408
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - arn:aws:apigateway:us-west-1:lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - ReviewerReportEvalDataReportRestAPIFDACC9FE
+                  - Arn
+              - /invocations
+      ResourceId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReport210E7343
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/EvalDataReport/POST/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReportOPTIONS064DA38C:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'*'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'*'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+          StatusCode: "204"
+      ResourceId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReport210E7343
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/EvalDataReport/OPTIONS/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReport2BFD24AC:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapireportrequest40570059
+      PathPart: RevSelTrackingReport
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/RevSelTrackingReport/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportPOSTApiPermissionProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DFPOSTreportrequestRevSelTrackingReportC79E347D:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - RevSelTrackingReportRevSelTrackingReportRestAPIF79EED6A
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:execute-api:us-west-1:962183462142:"
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+            - /
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapiDeploymentStageprod6032CFC9
+            - /POST/report/request/RevSelTrackingReport
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/RevSelTrackingReport/POST/ApiPermission.ProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DF.POST..report.request.RevSelTrackingReport
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportPOSTApiPermissionTestProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DFPOSTreportrequestRevSelTrackingReport75891186:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - RevSelTrackingReportRevSelTrackingReportRestAPIF79EED6A
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:aws:execute-api:us-west-1:962183462142:"
+            - Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+            - /test-invoke-stage/POST/report/request/RevSelTrackingReport
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/RevSelTrackingReport/POST/ApiPermission.Test.ProsamsReportsApiGatewayStackProsamsReportsAPIapiexternalgatewayprodapiBF11F5DF.POST..report.request.RevSelTrackingReport
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportPOST17EF8273:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Ref: ProSAMSCDKAuthReportsAPIAF9E4408
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - arn:aws:apigateway:us-west-1:lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - RevSelTrackingReportRevSelTrackingReportRestAPIF79EED6A
+                  - Arn
+              - /invocations
+      ResourceId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReport2BFD24AC
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/RevSelTrackingReport/POST/Resource
+  ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportOPTIONSB26339A9:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      ApiKeyRequired: false
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'*'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'*'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+          StatusCode: "204"
+      ResourceId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReport2BFD24AC
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/Default/report/request/RevSelTrackingReport/OPTIONS/Resource
+  ProsamsReportsAPIgetreportshealthcheckgetReportHealthCheck4C93C074:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-962183462142-us-west-1
+        S3Key: 7205dadbf6e74fce3c2329092ba698f28c2d266ca54bfb40b066011122932d50.zip
+      FunctionName: getReportHealthCheck
+      Handler: index.handler
+      MemorySize: 512
+      Role: arn:aws:iam::962183462142:role/LambdaS3
+      Runtime: nodejs18.x
+      Timeout: 30
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/get-reports-health-check/getReportHealthCheck/Resource
+      aws:asset:path: asset.7205dadbf6e74fce3c2329092ba698f28c2d266ca54bfb40b066011122932d50
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  ProsamsReportsAPIBackendAliasRecordDE718BFD:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      AliasTarget:
+        DNSName:
+          Fn::GetAtt:
+            - ProsamsReportsAPIapiexternalgatewayprodapiCustomDomainF22F4F29
+            - RegionalDomainName
+        HostedZoneId:
+          Fn::GetAtt:
+            - ProsamsReportsAPIapiexternalgatewayprodapiCustomDomainF22F4F29
+            - RegionalHostedZoneId
+      HostedZoneId: Z07873392ALWO47Z0X3A8
+      Name: reports.prosams.nasa.gov.
+      Type: A
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/BackendAliasRecord/Resource
+  ProsamsReportsAPIgetInternalLoginFF2DBB90:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-962183462142-us-west-1
+        S3Key: f0d38b24b85327ccc161fe5a028f692c60af8f82af95ef171bd05170d4671c75.zip
+      FunctionName: getInternalLogin
+      Handler: index.handler
+      MemorySize: 512
+      Role: arn:aws:iam::962183462142:role/LambdaS3
+      Runtime: nodejs18.x
+      Timeout: 3
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/getInternalLogin/getInternalLogin/Resource
+      aws:asset:path: asset.f0d38b24b85327ccc161fe5a028f692c60af8f82af95ef171bd05170d4671c75
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  ProsamsReportsAPIputReportRequest0FF795CC:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-962183462142-us-west-1
+        S3Key: 83892201649d4398912ffa5f2ac6eb343adbd386babc231268336a3c1cec4fe2.zip
+      FunctionName: putReportRequest
+      Handler: index.handler
+      MemorySize: 512
+      Role: arn:aws:iam::962183462142:role/LambdaS3
+      Runtime: nodejs18.x
+      Timeout: 3
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/putReportRequest/putReportRequest/Resource
+      aws:asset:path: asset.83892201649d4398912ffa5f2ac6eb343adbd386babc231268336a3c1cec4fe2
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  ProsamsReportsAPIApiGatewayStageDeployCCF5F7DD3961d73c6e1c45594f0868c471fd0081:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    DependsOn:
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordGETD67D451E
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordOPTIONS157F1E0D
+      - ProsamsReportsAPIapiexternalgatewayprodapihealthcheckGET0BEA292D
+      - ProsamsReportsAPIapiexternalgatewayprodapihealthcheckOPTIONS5258F6AC
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemailGET298B6AF9
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemailOPTIONSEA50197C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSMOPTIONS501F3A6E
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSMPOSTC41B5C3A
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReportOPTIONS064DA38C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReportPOST4577BE7C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportOPTIONSB26339A9
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportPOST17EF8273
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/ApiGatewayStageDeploy/Resource
+  ProSAMSDataprosamsreportapioutputprod796BD9BE:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: BucketOwnerFullControl
+      BucketName: prosams-reportapi-output-prod
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProSAMS-Data-prosams-reportapi-output-prod/Resource
+  ApiReportTestOutputSSMApiReportTestOutputSSMRestAPI39007BD2:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-962183462142-us-west-1
+        S3Key: 4dc035f4d954d4769915c47d5397e9171361f06d07343d8925419c39cb6cab03.zip
+      FunctionName: ApiReportTestOutputSSMRestAPI
+      Handler: index.handler
+      MemorySize: 2048
+      Role: arn:aws:iam::962183462142:role/LambdaS3
+      Runtime: nodejs18.x
+      Timeout: 3
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ApiReportTestOutputSSM/ApiReportTestOutputSSMRestAPI/ApiReportTestOutputSSMRestAPI/Resource
+      aws:asset:path: asset.4dc035f4d954d4769915c47d5397e9171361f06d07343d8925419c39cb6cab03
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  ApiReportTestOutputSSMApiReportTestOutputSSMprodRolePolicyProsamsReportsApiGatewayStackApiReportTestOutputSSMApiReportTestOutputSSMprodRole45E67CA4A1B8B27A:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:ReceiveMessage
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - ApiReportTestOutputSSMApiReportTestOutputSSMQueue19C6BBDE
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: PolicyProsamsReportsApiGatewayStackApiReportTestOutputSSMApiReportTestOutputSSMprodRole45E67CA4
+      Roles:
+        - LambdaS3
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ApiReportTestOutputSSM/ApiReportTestOutputSSMprod/Role/PolicyProsamsReportsApiGatewayStackApiReportTestOutputSSMApiReportTestOutputSSMprodRole45E67CA4/Resource
+  ApiReportTestOutputSSMApiReportTestOutputSSMprod30375021:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-962183462142-us-west-1
+        S3Key: bc1087db68a26744901687911187033e0a734f73b5291f4cad1376fc9ddb4adf.zip
+      FunctionName: ApiReportTestOutputSSMprod
+      Handler: index.handler
+      MemorySize: 2048
+      Role: arn:aws:iam::962183462142:role/LambdaS3
+      Runtime: nodejs18.x
+      Timeout: 900
+    DependsOn:
+      - ApiReportTestOutputSSMApiReportTestOutputSSMprodRolePolicyProsamsReportsApiGatewayStackApiReportTestOutputSSMApiReportTestOutputSSMprodRole45E67CA4A1B8B27A
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ApiReportTestOutputSSM/ApiReportTestOutputSSMprod/ApiReportTestOutputSSMprod/Resource
+      aws:asset:path: asset.bc1087db68a26744901687911187033e0a734f73b5291f4cad1376fc9ddb4adf
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  ApiReportTestOutputSSMApiReportTestOutputSSMQueue19C6BBDE:
+    Type: AWS::SQS::Queue
+    Properties:
+      ContentBasedDeduplication: true
+      DelaySeconds: 0
+      FifoQueue: true
+      QueueName: ApiReportTestOutputSSMQueue.fifo
+      VisibilityTimeout: 900
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ApiReportTestOutputSSM/ApiReportTestOutputSSMQueue/Resource
+  ApiReportTestOutputSSMApiReportTestOutputSSMReportEventSrcC0C74823:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn:
+        Fn::GetAtt:
+          - ApiReportTestOutputSSMApiReportTestOutputSSMQueue19C6BBDE
+          - Arn
+      FunctionName:
+        Ref: ApiReportTestOutputSSMApiReportTestOutputSSMprod30375021
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ApiReportTestOutputSSM/ApiReportTestOutputSSMReportEventSrc/Resource
+  ApiReportTestOutputSSMApiReportTestOutputSSMQUrlSSM61D1AA50:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: ApiReportTestOutputSSMQUrlSSM
+      Type: String
+      Value:
+        Ref: ApiReportTestOutputSSMApiReportTestOutputSSMQueue19C6BBDE
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ApiReportTestOutputSSM/ApiReportTestOutputSSMQUrlSSM/Resource
+  ApiReportTestOutputSSMApiGatewayStageDeployReportQueueApiReportTestOutputSSM545B21EA3961d73c6e1c45594f0868c471fd0081:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    DependsOn:
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordGETD67D451E
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordOPTIONS157F1E0D
+      - ProsamsReportsAPIapiexternalgatewayprodapihealthcheckGET0BEA292D
+      - ProsamsReportsAPIapiexternalgatewayprodapihealthcheckOPTIONS5258F6AC
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemailGET298B6AF9
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemailOPTIONSEA50197C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSMOPTIONS501F3A6E
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSMPOSTC41B5C3A
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReportOPTIONS064DA38C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReportPOST4577BE7C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportOPTIONSB26339A9
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportPOST17EF8273
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ApiReportTestOutputSSM/ApiGatewayStageDeployReportQueueApiReportTestOutputSSM/Resource
+  ReviewerReportEvalDataReportRestAPIFDACC9FE:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-962183462142-us-west-1
+        S3Key: 4dc035f4d954d4769915c47d5397e9171361f06d07343d8925419c39cb6cab03.zip
+      FunctionName: EvalDataReportRestAPI
+      Handler: index.handler
+      MemorySize: 2048
+      Role: arn:aws:iam::962183462142:role/LambdaS3
+      Runtime: nodejs18.x
+      Timeout: 3
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ReviewerReport/EvalDataReportRestAPI/EvalDataReportRestAPI/Resource
+      aws:asset:path: asset.4dc035f4d954d4769915c47d5397e9171361f06d07343d8925419c39cb6cab03
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  ReviewerReportEvalDataReportprodRolePolicyProsamsReportsApiGatewayStackReviewerReportEvalDataReportprodRole8F03077798BDDD40:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:ReceiveMessage
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - ReviewerReportEvalDataReportQueueB180950B
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: PolicyProsamsReportsApiGatewayStackReviewerReportEvalDataReportprodRole8F030777
+      Roles:
+        - LambdaS3
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ReviewerReport/EvalDataReportprod/Role/PolicyProsamsReportsApiGatewayStackReviewerReportEvalDataReportprodRole8F030777/Resource
+  ReviewerReportEvalDataReportprodB0C17FC7:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-962183462142-us-west-1
+        S3Key: f0d7a6e34bdcc1cca833f757511989950bacdd553a28459e3bda9420a1d0c3ce.zip
+      FunctionName: EvalDataReportprod
+      Handler: index.handler
+      MemorySize: 2048
+      Role: arn:aws:iam::962183462142:role/LambdaS3
+      Runtime: nodejs18.x
+      Timeout: 900
+    DependsOn:
+      - ReviewerReportEvalDataReportprodRolePolicyProsamsReportsApiGatewayStackReviewerReportEvalDataReportprodRole8F03077798BDDD40
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ReviewerReport/EvalDataReportprod/EvalDataReportprod/Resource
+      aws:asset:path: asset.f0d7a6e34bdcc1cca833f757511989950bacdd553a28459e3bda9420a1d0c3ce
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  ReviewerReportEvalDataReportQueueB180950B:
+    Type: AWS::SQS::Queue
+    Properties:
+      ContentBasedDeduplication: true
+      DelaySeconds: 0
+      FifoQueue: true
+      QueueName: EvalDataReportQueue.fifo
+      VisibilityTimeout: 900
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ReviewerReport/EvalDataReportQueue/Resource
+  ReviewerReportEvalDataReportReportEventSrc896D79D7:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn:
+        Fn::GetAtt:
+          - ReviewerReportEvalDataReportQueueB180950B
+          - Arn
+      FunctionName:
+        Ref: ReviewerReportEvalDataReportprodB0C17FC7
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ReviewerReport/EvalDataReportReportEventSrc/Resource
+  ReviewerReportEvalDataReportQUrlSSM04ED6150:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: EvalDataReportQUrlSSM
+      Type: String
+      Value:
+        Ref: ReviewerReportEvalDataReportQueueB180950B
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ReviewerReport/EvalDataReportQUrlSSM/Resource
+  ReviewerReportApiGatewayStageDeployReportQueueEvalDataReportEEB949CE3961d73c6e1c45594f0868c471fd0081:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    DependsOn:
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordGETD67D451E
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordOPTIONS157F1E0D
+      - ProsamsReportsAPIapiexternalgatewayprodapihealthcheckGET0BEA292D
+      - ProsamsReportsAPIapiexternalgatewayprodapihealthcheckOPTIONS5258F6AC
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemailGET298B6AF9
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemailOPTIONSEA50197C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSMOPTIONS501F3A6E
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSMPOSTC41B5C3A
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReportOPTIONS064DA38C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReportPOST4577BE7C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportOPTIONSB26339A9
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportPOST17EF8273
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ReviewerReport/ApiGatewayStageDeployReportQueueEvalDataReport/Resource
+  checkForTABA80ED1006:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-962183462142-us-west-1
+        S3Key: 0d87db67509d4d4e4dd105b636a8a7f9e5b89f599079245802f127ddd041c8a1.zip
+      FunctionName: checkForTABA
+      Handler: index.handler
+      MemorySize: 2048
+      Role: arn:aws:iam::962183462142:role/LambdaS3
+      Runtime: nodejs18.x
+      Timeout: 900
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/checkForTABA/checkForTABA/Resource
+      aws:asset:path: asset.0d87db67509d4d4e4dd105b636a8a7f9e5b89f599079245802f127ddd041c8a1
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  RevSelTrackingReportRevSelTrackingReportRestAPIF79EED6A:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-962183462142-us-west-1
+        S3Key: 4dc035f4d954d4769915c47d5397e9171361f06d07343d8925419c39cb6cab03.zip
+      FunctionName: RevSelTrackingReportRestAPI
+      Handler: index.handler
+      MemorySize: 2048
+      Role: arn:aws:iam::962183462142:role/LambdaS3
+      Runtime: nodejs18.x
+      Timeout: 3
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/RevSelTrackingReport/RevSelTrackingReportRestAPI/RevSelTrackingReportRestAPI/Resource
+      aws:asset:path: asset.4dc035f4d954d4769915c47d5397e9171361f06d07343d8925419c39cb6cab03
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  RevSelTrackingReportRevSelTrackingReportprodRolePolicyProsamsReportsApiGatewayStackRevSelTrackingReportRevSelTrackingReportprodRole3410D07DAEC45CE0:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - sqs:ChangeMessageVisibility
+              - sqs:DeleteMessage
+              - sqs:GetQueueAttributes
+              - sqs:GetQueueUrl
+              - sqs:ReceiveMessage
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - RevSelTrackingReportRevSelTrackingReportQueue95189DA1
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: PolicyProsamsReportsApiGatewayStackRevSelTrackingReportRevSelTrackingReportprodRole3410D07D
+      Roles:
+        - LambdaS3
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/RevSelTrackingReport/RevSelTrackingReportprod/Role/PolicyProsamsReportsApiGatewayStackRevSelTrackingReportRevSelTrackingReportprodRole3410D07D/Resource
+  RevSelTrackingReportRevSelTrackingReportprod846E96C0:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-962183462142-us-west-1
+        S3Key: 59a01e50c045120d83cfd6c43b760e8187c9f2ef303563c52e35f77e8485b5f1.zip
+      FunctionName: RevSelTrackingReportprod
+      Handler: index.handler
+      MemorySize: 2048
+      Role: arn:aws:iam::962183462142:role/LambdaS3
+      Runtime: nodejs18.x
+      Timeout: 900
+    DependsOn:
+      - RevSelTrackingReportRevSelTrackingReportprodRolePolicyProsamsReportsApiGatewayStackRevSelTrackingReportRevSelTrackingReportprodRole3410D07DAEC45CE0
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/RevSelTrackingReport/RevSelTrackingReportprod/RevSelTrackingReportprod/Resource
+      aws:asset:path: asset.59a01e50c045120d83cfd6c43b760e8187c9f2ef303563c52e35f77e8485b5f1
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  RevSelTrackingReportRevSelTrackingReportQueue95189DA1:
+    Type: AWS::SQS::Queue
+    Properties:
+      ContentBasedDeduplication: true
+      DelaySeconds: 0
+      FifoQueue: true
+      QueueName: RevSelTrackingReportQueue.fifo
+      VisibilityTimeout: 900
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/RevSelTrackingReport/RevSelTrackingReportQueue/Resource
+  RevSelTrackingReportRevSelTrackingReportReportEventSrcE92BF7B1:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn:
+        Fn::GetAtt:
+          - RevSelTrackingReportRevSelTrackingReportQueue95189DA1
+          - Arn
+      FunctionName:
+        Ref: RevSelTrackingReportRevSelTrackingReportprod846E96C0
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/RevSelTrackingReport/RevSelTrackingReportReportEventSrc/Resource
+  RevSelTrackingReportRevSelTrackingReportQUrlSSMA518D51E:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: RevSelTrackingReportQUrlSSM
+      Type: String
+      Value:
+        Ref: RevSelTrackingReportRevSelTrackingReportQueue95189DA1
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/RevSelTrackingReport/RevSelTrackingReportQUrlSSM/Resource
+  RevSelTrackingReportApiGatewayStageDeployReportQueueRevSelTrackingReportFAC448473961d73c6e1c45594f0868c471fd0081:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    DependsOn:
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordGETD67D451E
+      - ProsamsReportsAPIapiexternalgatewayprodapiauthinternalloginusernamepasswordOPTIONS157F1E0D
+      - ProsamsReportsAPIapiexternalgatewayprodapihealthcheckGET0BEA292D
+      - ProsamsReportsAPIapiexternalgatewayprodapihealthcheckOPTIONS5258F6AC
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemailGET298B6AF9
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequesttypeemailOPTIONSEA50197C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSMOPTIONS501F3A6E
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestApiReportTestOutputSSMPOSTC41B5C3A
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReportOPTIONS064DA38C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestEvalDataReportPOST4577BE7C
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportOPTIONSB26339A9
+      - ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportPOST17EF8273
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/RevSelTrackingReport/ApiGatewayStageDeployReportQueueRevSelTrackingReport/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/21STVMCMQz9Ld5LHVDHM+DHCV1BvTKhG5bCtl37AYM7+99NW4Edx1Pfe2ma5KUjPhze8uEVHNxAlLtBLVe8XXgQOzZHZ4IVyCi2bAVaL9dSgEcFGiq0vJ1eNDZd6x7tWHnUoExJr73DqsbPUbzxXJsV1EnomATF28LUUhxjLKOO1aBWJfD2KWjhpdExdsaPe9R+kdqaQdNIXcXw/2qBVknnKK1j7mYJzqF3fBwP4rydBLFDPwGHLMOYlBElfDnevgUMabIESHQqmmOpQAEWFHq0qdKJdAwaWdH8BziSPabS0psPh7Ywpnbj4DfGyu+c1GPktB83Mqon+IBNbY6K5opqj9FuqtRTBg9GgdQvVD7du7A4VwF+0zPkr3RacLLgvO3cRMYzpB7LKGXUMWuCxztybzxHYWyZr0e0INs6luyNrf3WfA2+Cb7/aMe0KZFv3fV+NOT39Pe2TsqBDdpLhXyezx8B/LkZmAIAAA==
+    Metadata:
+      aws:cdk:path: ProsamsReportsApiGatewayStack/CDKMetadata/Default
+Outputs:
+  ProsamsReportsAPIapiexternalgatewayprodapiEndpoint453ADFE7:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+          - .execute-api.us-west-1.
+          - Ref: AWS::URLSuffix
+          - /
+          - Ref: ProsamsReportsAPIapiexternalgatewayprodapiDeploymentStageprod6032CFC9
+          - /
+  ProsamsReportsAPIReportsAPIGatewayIdFDE2B7A7:
+    Value:
+      Ref: ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+    Export:
+      Name: Reports-API-Gateway-Id
+  ProsamsReportsAPIReportsAPIGatewayRootId58BC3B21:
+    Value:
+      Fn::GetAtt:
+        - ProsamsReportsAPIapiexternalgatewayprodapi732F9676
+        - RootResourceId
+    Export:
+      Name: Reports-API-Gateway-Root-Id
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+Rules:
+  CheckBootstrapVersion:
+    Assertions:
+      - Assert:
+          Fn::Not:
+            - Fn::Contains:
+                - - "1"
+                  - "2"
+                  - "3"
+                  - "4"
+                  - "5"
+                - Ref: BootstrapVersion
+        AssertDescription: CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.
+

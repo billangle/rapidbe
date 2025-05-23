@@ -1,0 +1,34 @@
+{
+  "name": "codechallengeautomationjs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test-local": "npx playwright install && env=local npx cucumber-js test --tags '@regression or @smoke'",
+    "test-smoke": "npx playwright install && env=dev npx cucumber-js test --tags='@smoke' --parallel 6",
+    "test-dev": "npx playwright install && env=dev npx cucumber-js test --tags='@dev'",
+    "test-devregression": "npx playwright install && env=dev npx cucumber-js test --tags='@dev or @regression' --parallel 6",
+    "test-stage": "npx playwright install && env=stage npx cucumber-js test --tags '@regression or @smoke'",
+    "test-prod": "npx playwright install && env=prod npx cucumber-js test --tags '@regression or @smoke'",
+    "test-okta": "npx playwright install && env=okta npx cucumber-js test --tags '@regression or @smoke'",
+    "test-all": "npx playwright install && env=dev npx cucumber-js test --tags '@regression or @smoke' --parallel 3",
+    "test-rapid": "npx playwright install && env=local npx cucumber-js test --tags='@rapid'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^22.8.7",
+    "axe-playwright": "^2.0.3",
+    "playwright": "^1.48.2"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "@cucumber/cucumber": "^11.2.0",
+    "@faker-js/faker": "^9.5.1",
+    "@playwright/test": "^1.48.2",
+    "axe-html-reporter": "^2.2.11",
+    "axios": "^1.8.4",
+    "cucumber-html-reporter": "^7.2.0"
+  }
+}

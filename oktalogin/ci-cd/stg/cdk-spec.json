@@ -1,0 +1,19 @@
+{
+    "settings":{
+        "topdir": "rapid-stg",
+        "environment": "stg",
+        "region": "us-east-2",
+        "account": "796973487247",
+        "node_version": "NODEJS_16_X",
+        "role": "arn:aws:iam::796973487247:role/LambdaS3",
+        "domain": "stg.reirapid.net",
+        "api_name": "Rapid Edge User Management",
+        "api_dns":  "rapidum",
+        "description": "Rapid Edge API",
+        "cert_arn": "arn:aws:acm:us-east-2:796973487247:certificate/f7012b22-8b08-4a61-a5a3-96ae539ca691",
+        "rest_api_id": "oanwxuem5l",
+        "root_resource_id": "mqwraj39hg",
+        "user_pool_arn": "arn:aws:cognito-idp:us-east-2:796973487247:userpool/us-east-2_J65ahO3G6",
+        "prosams_proposal_data_arn": "arn:aws:s3:::prosams-proposal-data-qa"
+    }
+}

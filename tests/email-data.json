@@ -1,0 +1,12 @@
+{
+    "data": {
+        "companyName": "Initech",
+        "salary": "100k",
+        "title": "Software Engineer",
+        "SSN": "*********",
+        "street1": "1234 Main St",
+        "city": "Austin",
+        "state": "TX",
+        "zip": "78741"
+    }
+}

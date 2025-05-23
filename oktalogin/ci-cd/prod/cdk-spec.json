@@ -1,0 +1,19 @@
+{
+    "settings":{
+        "topdir": "rapid-prod",
+        "environment": "prod",
+        "region": "us-east-2",
+        "account": "692859936875",
+        "node_version": "NODEJS_16_X",
+        "role": "arn:aws:iam::692859936875:role/LambdaS3",
+        "domain": "reirapid.net",
+        "api_name": "Rapid Edge User Management",
+        "api_dns":  "apium",
+        "description": "Rapid Edge API",
+        "cert_arn": "arn:aws:acm:us-west-1:962183462142:certificate/50f62999-00e0-46f4-919b-e59977f5be78",
+        "rest_api_id": "uvraxh1wwi",
+        "root_resource_id": "g1s6d2ejw2",
+        "user_pool_arn": "arn:aws:cognito-idp:us-west-1:962183462142:userpool/us-west-1_Ww5ZYhCFj"
+
+    }
+}

@@ -1,0 +1,11 @@
+{
+  "availability-zones:account=796973487247:region=us-east-2": [
+    "us-east-2a",
+    "us-east-2b",
+    "us-east-2c"
+  ],
+  "hosted-zone:account=796973487247:domainName=stg.reirapid.net:region=us-east-2": {
+    "Id": "/hostedzone/Z035981930R0L34N05HCD",
+    "Name": "stg.reirapid.net."
+  }
+}

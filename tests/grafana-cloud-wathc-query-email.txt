@@ -1,0 +1,5 @@
+fields @timestamp, @message
+| filter @message like /subject Identity Theft Monitoring Enabled/
+| stats count() as event_count by bin(@timestamp, 1m)
+| sort @timestamp desc
+| limit 100

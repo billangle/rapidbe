@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+  <appender name="Local" class="ch.qos.logback.core.ConsoleAppender">
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %msg%n%wEx</Pattern>
+    </layout>
+  </appender>
+  <appender name="JsonConsole" class="ch.qos.logback.core.ConsoleAppender">
+      <layout class="ch.qos.logback.classic.PatternLayout">
+          <Pattern>{"timestamp":"%d{yyyy-MM-dd HH:mm:ss}","component":"general","thread":"%thread","level":"%level","logger":"%logger{36}","message":"%msg"}%n</Pattern>
+      </layout>
+  </appender>
+  <springProfile name="kubernetes">
+    <root level="info">
+      <appender-ref ref="JsonConsole" />
+    </root>
+  </springProfile>
+
+  <springProfile name="!kubernetes">
+    <root level="info">
+      <appender-ref ref="Local" />
+    </root>
+  </springProfile>
+</configuration>
+

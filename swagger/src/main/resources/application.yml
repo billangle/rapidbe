@@ -1,0 +1,22 @@
+spring:
+  profiles:
+    active: prod
+
+---
+
+spring:
+  profiles: prod
+server:
+  port: 80
+  additionalPorts: 8080
+
+
+
+
+---
+
+spring:
+  profiles: local
+server:
+  port: 80
+  additionalPorts: 8080

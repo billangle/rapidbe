@@ -1,0 +1,18 @@
+{
+    "settings":{
+        "topdir": "infrastructure",
+        "environment": "uatwest2",
+        "region": "us-west-2",
+        "account": "839407828943",
+        "user_pool": "us-west-2_7IePAuMn2",
+        "password": "m4@rOthEBrOBO=?l=rac",
+        "base_email": "william.beckett+rapiduser"
+
+    },
+    "users": [
+        {"username":  "rapid.user",
+         "email": "william.beckett+rapiduser@reisystems.com",
+         "group":  "Admins"
+        }
+    ]
+}
