@@ -2,7 +2,7 @@
     "settings":{
         "topdir": "rapid-prod",
         "environment": "dev",
-        "region": "us-east-2",
+        "region": "us-east-1",
         "account": "209479266802",
         "node_version": "NODEJS_16_X",
         "role": "arn:aws:iam::209479266802:role/LambdaS3",

@@ -26,5 +26,9 @@
   "hosted-zone:account=209479266802:domainName=dev.reirapid.net:region=us-east-2": {
     "Id": "/hostedzone/Z0525135156DJTHQX8QCY",
     "Name": "dev.reirapid.net."
+  },
+  "hosted-zone:account=685600652087:domainName=rapidright.net:region=us-east-1": {
+    "Id": "/hostedzone/Z057053733DMGSPF9YEXJ",
+    "Name": "rapidright.net."
   }
 }

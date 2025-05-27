@@ -5,6 +5,7 @@ import {SSMClient, GetParameterCommand} from "@aws-sdk/client-ssm";
 const client = new S3Client({});
 const sqsClient = new SQSClient({});
 const ssmClient = new SSMClient({});
+const domain="rapidright.net";
 
 
 const checkKey = async(myKey, myBucket) => {
@@ -60,7 +61,8 @@ export const handler = async (event, context, call) => {
 
 
 
-        let baseBucket= "rapidcc-userdata-output2";
+        //let baseBucket= "rapidcc-userdata-output2";
+        let baseBucket= `${domain}-userdata-output`;
         let bucketName = baseBucket + "-" + proEnv;
 
         /*

@@ -164,9 +164,9 @@ export class UserMgtSLBE extends cdk.Stack {
       region: props.configData.settings.region
    })
    
-   const newBucket = new RapidS3(this, "rapidcc-userdata-output2", {
+   const newBucket = new RapidS3(this, `${domain}-userdata-output`, {
     env: props.configData.settings.environment,
-    base_name: "rapidcc-userdata-output2"
+    base_name:  `${domain}-userdata-output`
   });
 
 
