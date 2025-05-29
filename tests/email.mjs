@@ -3,8 +3,8 @@ import {faker, fi} from '@faker-js/faker';
 
 // rapidum.reirapid.net
 const APISERVER=process.env.APISERVER;
-const username = 'rapid.test1';
-const password = "Passw0rd123qwery!";
+const username = '';
+const password = "";
 
 const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio', 'San Diego', 'Dallas', 'San Jose'];
 const states = ['NY', 'CA', 'IL', 'TX', 'AZ', 'PA', 'TX', 'CA', 'TX', 'CA'];

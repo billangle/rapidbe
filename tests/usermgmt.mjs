@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const APISERVER=process.env.APISERVER;
-const username = 'rapid.test1';
-const password = "Passw0rd123qwery!";
+const username = '';
+const password = "";
 
 
 const rapidCCLogin = async() => {
@@ -28,7 +28,7 @@ const rapidCCCreateUser = async(username) => {
 
     const userData = {
         "username": username,
-        "password": "Passw0rd123qwery!",
+        "password": "",
         "email": "william.beckett+rapidtest@rapidright.net",
         "firstName": "William",
         "lastName": "Beckett",
@@ -87,7 +87,7 @@ const rapidCCChangePassword= async(token,username) => {
     let res={};
     let url = `https://${APISERVER}/rapid/change/password/${username}`;
     let putData = {
-        "newpassword": "Passw0rd1234567qwery!"
+        "newpassword": ""
     }
     try {
 
