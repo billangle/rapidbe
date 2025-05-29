@@ -6,7 +6,7 @@ The User Management service, will manage users in **AWS Cognito User Pool**. The
 
 ## GitHub Actions and Workflows
 
-There are are GitHub workflows to create and deploy all AWS resources as well as code required for this feature. These are:
+There are are GitHub workflows to create and deploy all AWS resources as well as code required for this feature. 
 
 
 
@@ -58,7 +58,7 @@ Now we are ready to run the CDK. Assuming that the AWS keys are defined in a pro
 
 Requires that the environment variable APISERVER is set in the environment. The development environment would utilize:
 
-- ```export APISERVER=rapidum.dev.reirapid.net```
+- ```export APISERVER=rapidum.rapidright.net```
 
 Tests will have two basic types. Initially, there are tests to ensure that the REST functionality is working and continues to work. These tests are defined in the tests directory. There are two basic types that will be found, first are shell scripts which call a specific end point and return a result. If a TOKEN is required the ```./test-login.sh``` should be run. This will return a TOKEN, which can be exported into the environment. The other test is more roboust and will execute scenarios and check the exepcted results. This is run using the following command:
 
@@ -66,14 +66,11 @@ Tests will have two basic types. Initially, there are tests to ensure that the R
 
 This will require that the developer run npm install in the tests directory, which will install the required packages. The usermgmt.mjs contains all of the REST end points as well as reference example of all of the data required for each end point. This does not replace swagger - but it is useful to see how each end point is utilized.
 
-The tests to implement coverage results, which are run in the GitHub pipeline will be available soon.
 
 <br>
 
 ## Swagger Documentation
 
-- DEV: https://umdocs.dev.reirapid.net/swagger-ui/index.html
-- STAGING: https://umdocs.stg.reirapid.net/swagger-ui/index.html
 
 The swagger is implemented in Java spring. it requires:
 - <a href="https://www.oracle.com/java/technologies/javase/jdk20-archive-downloads.html">Java 20</a>$\textcolor{silver}{↗}$
