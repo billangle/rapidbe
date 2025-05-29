@@ -3,8 +3,8 @@ import {faker, fi} from '@faker-js/faker';
 
 // rapidum.reirapid.net
 const APISERVER=process.env.APISERVER;
-const username = '';
-const password = "";
+const username = process.env.USSERNAME;
+const password = process.env.PASSWORD;
 
 const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia', 'San Antonio', 'San Diego', 'Dallas', 'San Jose'];
 const states = ['NY', 'CA', 'IL', 'TX', 'AZ', 'PA', 'TX', 'CA', 'TX', 'CA'];
@@ -473,7 +473,7 @@ const rapidCCCreateUser = async(data) => {
 
     const userData = {
         "username": data.username,
-        "password": "Passw0rd123qwery!",
+        "password": password,
         "email": data.email,
         "firstName": data.first,
         "lastName": data.last,
@@ -615,7 +615,7 @@ const run = async() => {
 
     let res1 = await rapidCCCreateUser(theData);
 
-    let pass="Passw0rd123qwery!";
+    let pass=password;
     let userToken = await rapidCCLoginUser(theData.username, pass);
     if (userToken === "") {
         console.error("Failed to login");
