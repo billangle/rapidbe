@@ -60,12 +60,6 @@ Requires that the environment variable APISERVER is set in the environment. The 
 
 - ```export APISERVER=rapidum.rapidright.net```
 
-Tests will have two basic types. Initially, there are tests to ensure that the REST functionality is working and continues to work. These tests are defined in the tests directory. There are two basic types that will be found, first are shell scripts which call a specific end point and return a result. If a TOKEN is required the ```./test-login.sh``` should be run. This will return a TOKEN, which can be exported into the environment. The other test is more roboust and will execute scenarios and check the exepcted results. This is run using the following command:
-
-- ```node usermgmt.mjs```
-
-This will require that the developer run npm install in the tests directory, which will install the required packages. The usermgmt.mjs contains all of the REST end points as well as reference example of all of the data required for each end point. This does not replace swagger - but it is useful to see how each end point is utilized.
-
 
 <br>
 

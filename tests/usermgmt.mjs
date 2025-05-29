@@ -29,7 +29,7 @@ const rapidCCCreateUser = async(username) => {
     const userData = {
         "username": username,
         "password": "Passw0rd123qwery!",
-        "email": "william.beckett+rapidtest@reisystems.com",
+        "email": "william.beckett+rapidtest@rapidright.net",
         "firstName": "William",
         "lastName": "Beckett",
         "street1": "1234 Main St",
@@ -37,7 +37,7 @@ const rapidCCCreateUser = async(username) => {
         "state": "VA",
         "zip": "22033",
         "phone": "123-456-7890",
-        "confirmEmail": "william.beckett+rapidtest@reisystems.com",
+        "confirmEmail": "william.beckett+rapidtest@rapidright.net",
         "apt": "111D",
         "middlename": "Middle",
         "prefix": "Mr.",
