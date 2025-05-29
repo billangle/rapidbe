@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 const APISERVER=process.env.APISERVER;
-const username = '';
-const password = "";
-
+const username = process.env.USERNAME;
+const password = process.env.PASSWORD;
+const newuser = `${username}100`;
 
 const rapidCCLogin = async() => {
 
@@ -28,7 +28,7 @@ const rapidCCCreateUser = async(username) => {
 
     const userData = {
         "username": username,
-        "password": "",
+        "password": password,
         "email": "william.beckett+rapidtest@rapidright.net",
         "firstName": "William",
         "lastName": "Beckett",
@@ -85,9 +85,10 @@ const rapidCCListUsers= async(token) => {
 const rapidCCChangePassword= async(token,username) => {
 
     let res={};
+    console.log ("changing password for " + username);
     let url = `https://${APISERVER}/rapid/change/password/${username}`;
     let putData = {
-        "newpassword": ""
+        "newpassword": process.env.NEWPASSWORD
     }
     try {
 
@@ -141,7 +142,7 @@ const run = async() => {
     let expectedUsers = userCount +1;
     console.log(`Users: ${userCount}`);
 
-    res = await rapidCCCreateUser("test.user");
+    res = await rapidCCCreateUser(newuser);
     console.log(res);
     if (res !== undefined) {
         console.log("User created as expected");
@@ -161,7 +162,7 @@ const run = async() => {
     }
 
 
-    res = await rapidCCCreateUser("test.user");
+    res = await rapidCCCreateUser(newuser);
     if (res !== undefined) {
         console.error("This should have failed");
     }
@@ -169,7 +170,7 @@ const run = async() => {
         console.log("Duplicate user creation failed as expected");
     }
 
-    res = await rapidCCChangePassword(myToken,"test.user");
+    res = await rapidCCChangePassword(myToken,newuser);
     if (res !== undefined) {
         console.log("Password changed as expected");
     }
@@ -177,7 +178,7 @@ const run = async() => {
         console.error("Password change failed");
     }
     
-    res = await rapidCCDeleteUser(myToken,"test.user");
+    res = await rapidCCDeleteUser(myToken,newuser);
     if (res !== undefined) {
         console.log("User deleted as expected");
     }
@@ -195,7 +196,7 @@ const run = async() => {
         console.log(`Users: ${userCount}`);
     }
 
-    res = await rapidCCDeleteUser(myToken,"test.user"); 
+    res = await rapidCCDeleteUser(myToken,newuser); 
     if (res !== undefined) {
         console.error("This should have failed");
     }
