@@ -1,0 +1,79 @@
+name: Deploy PRODUCTION Right Angle Research User Management 
+
+on:
+  workflow_dispatch
+
+env:
+  DEPLOY_ENV: ${{ vars.PRD_ENV }}
+  APISERVER: ${{ vars.PRD_API_SERVER }}
+
+jobs:
+  deploy_user_mgmt_prod:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22' 
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - name: Install dependencies
+        run: |
+          cd ci-cd/cdk
+          npm install
+
+          
+      - name: Install Layer dependencies
+        run: |
+              cd layer/nodejs
+              npm install
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_PRD_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_PRD_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Install AWS CDK
+        run: npm install -g aws-cdk  
+      - name: Deploy CDK Stack
+        run: |
+          cd ci-cd/cdk
+          cdk deploy --require-approval never 
+
+  test_user_mgmt_prod:
+      runs-on: ubuntu-latest
+      needs: deploy_user_mgmt_prod
+
+      
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v3
+  
+        - name: Set up Node.js
+          uses: actions/setup-node@v3
+          with:
+            node-version: '22' 
+  
+        - name: Setup Test Environment
+          run: |
+            cd tests
+            npm install
+  
+        - name: Run Tests
+          run: |
+            cd tests
+            node ./usermgmt.mjs
+         
