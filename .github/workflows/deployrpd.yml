@@ -6,6 +6,9 @@ on:
 env:
   DEPLOY_ENV: ${{ vars.PRD_ENV }}
   APISERVER: ${{ vars.PRD_API_SERVER }}
+  USERNAME: ${{ secrets.TEST_USERNAME }}
+  PASSWORD: ${{ secrets.TEST_PASSWORD }}
+  NEWPASSWORD: ${{ secrets.TEST_NEW_PASSWORD }}
 
 jobs:
   deploy_user_mgmt_prod:
