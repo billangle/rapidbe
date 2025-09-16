@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SupportController {
 
     /**
-     * Internal Login - NASA - eval, contracts - general data
+     * Internal Login 
      */
     @GetMapping("/internal/login/{username}/{password}")
     @Operation(summary = "Get JWT TOKEN for a username and password")
