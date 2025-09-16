@@ -1,18 +1,18 @@
-Generating CERT for reports.prosams.nasa.gov
+Generating CERT for reports.rpaidright.com
 Resources:
-  reportsSiteCertificatereportsprosamsnasagovC5DDD1EE:
+  reportsSiteCertificatereportspaidrigh.comC5DDD1EE:
     Type: AWS::CertificateManager::Certificate
     Properties:
-      DomainName: reports.prosams.nasa.gov
+      DomainName: reports.rpaidright.com
       DomainValidationOptions:
-        - DomainName: reports.prosams.nasa.gov
+        - DomainName: reports.rpaidright.com
           HostedZoneId: Z07873392ALWO47Z0X3A8
       Tags:
         - Key: Name
-          Value: ProsamsReportsApiGatewayStack/reports/SiteCertificatereports.prosams.nasa.gov
+          Value: ProsamsReportsApiGatewayStack/reports/SiteCertificatereports.rpaidright.com
       ValidationMethod: DNS
     Metadata:
-      aws:cdk:path: ProsamsReportsApiGatewayStack/reports/SiteCertificatereports.prosams.nasa.gov/Resource
+      aws:cdk:path: ProsamsReportsApiGatewayStack/reports/SiteCertificatereports.rpaidright.com/Resource
   APIReportEvents7E9C9ABC:
     Type: AWS::DynamoDB::GlobalTable
     Properties:
@@ -245,12 +245,12 @@ Resources:
   ProsamsReportsAPIapiexternalgatewayprodapiCustomDomainF22F4F29:
     Type: AWS::ApiGateway::DomainName
     Properties:
-      DomainName: reports.prosams.nasa.gov
+      DomainName: reports.rpaidright.com
       EndpointConfiguration:
         Types:
           - REGIONAL
       RegionalCertificateArn:
-        Ref: reportsSiteCertificatereportsprosamsnasagovC5DDD1EE
+        Ref: reportsSiteCertificatereportspaidrigh.comC5DDD1EE
       SecurityPolicy: TLS_1_2
     Metadata:
       aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/api-external-gateway-prod-api/CustomDomain/Resource
@@ -953,7 +953,7 @@ Resources:
             - ProsamsReportsAPIapiexternalgatewayprodapiCustomDomainF22F4F29
             - RegionalHostedZoneId
       HostedZoneId: Z07873392ALWO47Z0X3A8
-      Name: reports.prosams.nasa.gov.
+      Name: reports.rpaidright.com.
       Type: A
     Metadata:
       aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/BackendAliasRecord/Resource
@@ -1011,15 +1011,15 @@ Resources:
       - ProsamsReportsAPIapiexternalgatewayprodapireportrequestRevSelTrackingReportPOST17EF8273
     Metadata:
       aws:cdk:path: ProsamsReportsApiGatewayStack/ProsamsReportsAPI/ApiGatewayStageDeploy/Resource
-  ProSAMSDataprosamsreportapioutputprod796BD9BE:
+  ProSAMSDataeportapioutputprod796BD9BE:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: BucketOwnerFullControl
-      BucketName: prosams-reportapi-output-prod
+      BucketName: reportapi-output-prod
     UpdateReplacePolicy: Delete
     DeletionPolicy: Delete
     Metadata:
-      aws:cdk:path: ProsamsReportsApiGatewayStack/ProSAMS-Data-prosams-reportapi-output-prod/Resource
+      aws:cdk:path: ProsamsReportsApiGatewayStack/ProSAMS-Data-reportapi-output-prod/Resource
   ApiReportTestOutputSSMApiReportTestOutputSSMRestAPI39007BD2:
     Type: AWS::Lambda::Function
     Properties:
